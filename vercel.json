@@ -1,19 +1,25 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "framework": "node",
   "builds": [
     {
       "src": "dist/server.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": [".env"],
-        "installCommand": "npm install"
+        "includeFiles": [".env"]
       }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "dist/server.js"
+      "dest": "server.js"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
