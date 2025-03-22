@@ -26,11 +26,9 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.get('/health', async (req, res) => {
   try {
     await sequelize.authenticate();
-    console.log('Database connection successful');
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -39,8 +37,7 @@ app.get('/health', async (req, res) => {
         host: process.env.DB_HOST,
         name: process.env.DB_NAME
       },
-      env: process.env.NODE_ENV || 'development',
-      serverTime: new Date().toISOString()
+      env: process.env.NODE_ENV || 'development'
     });
   } catch (error) {
     console.error('Database connection error:', error);

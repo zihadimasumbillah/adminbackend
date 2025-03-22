@@ -10,7 +10,8 @@
     "test": "jest",
     "migrate": "sequelize-cli db:migrate",
     "migrate:undo": "sequelize-cli db:migrate:undo",
-    "migrate:undo:all": "sequelize-cli db:migrate:undo:all"
+    "migrate:undo:all": "sequelize-cli db:migrate:undo:all",
+    "vercel-build": "tsc && npm run migrate"
   },
   "keywords": [],
   "author": "",
