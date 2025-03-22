@@ -1,10 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.model';
-
-interface AuthRequest extends Request {
-  user?: any;
-}
+import { AuthRequest } from '../types/express';
 
 export const auth = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {

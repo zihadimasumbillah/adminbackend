@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
@@ -20,13 +20,13 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   console.log('Headers:', req.headers);
   next();
 });
 
-app.get('/health', async (req, res) => {
+app.get('/health', async (req: Request, res: Response) => {
   try {
     await sequelize.authenticate();
     res.json({
