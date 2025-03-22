@@ -107,7 +107,6 @@ The application uses PostgreSQL with Sequelize ORM. To set up:
 3. Run migrations
 4. Configure SSL for production
 
-
 ## License
 
-ISC
+This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
