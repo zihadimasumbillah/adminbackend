@@ -14,8 +14,7 @@ const app = express();
 
 app.use(cors({
   origin: '*', 
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
@@ -26,32 +25,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.get('/health', async (req: Request, res: Response) => {
-  try {
-    await sequelize.authenticate();
-    res.json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      database: {
-        connected: true,
-        host: process.env.DB_HOST,
-        name: process.env.DB_NAME
-      },
-      env: process.env.NODE_ENV || 'development'
-    });
-  } catch (error) {
-    console.error('Database connection error:', error);
-    res.status(500).json({
-      status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 4000;
@@ -66,3 +41,5 @@ sequelize.sync()
   .catch((error) => {
     console.error('Error synchronizing database:', error);
   });
+
+export default app;

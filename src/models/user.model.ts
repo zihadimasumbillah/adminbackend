@@ -1,8 +1,8 @@
-import { Model, DataTypes, fn, UniqueConstraintError } from 'sequelize';
+import { Model, DataTypes, fn } from 'sequelize';
 import sequelize from '../config/database';
 
 interface UserAttributes {
-  id: string;
+  id?: string; 
   name: string;
   email: string;
   password: string;
@@ -12,9 +12,7 @@ interface UserAttributes {
   deleted_at: Date | null;
 }
 
-interface UserCreationAttributes extends Omit<UserAttributes, 'id' | 'created_at' | 'deleted_at'> {}
-
-export class User extends Model<UserAttributes, UserCreationAttributes> {
+export class User extends Model<UserAttributes> {
   declare id: string;
   declare name: string;
   declare email: string;
@@ -30,71 +28,47 @@ User.init(
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
+      primaryKey: true
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: {
-        name: 'users_email_active_key',
-        msg: 'This email is already registered'
-      },
-      validate: {
-        isEmail: {
-          msg: 'Please enter a valid email address'
-        }
-      }
+      unique: true,
+      validate: { isEmail: true }
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true 
-      }
+      allowNull: false
     },
     last_login_time: {
       type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: fn('NOW'),
+      defaultValue: fn('NOW')
     },
     status: {
       type: DataTypes.ENUM('active', 'blocked'),
-      allowNull: false,
-      defaultValue: 'active',
+      defaultValue: 'active'
     },
     created_at: {
       type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: fn('NOW'),
+      defaultValue: fn('NOW')
     },
     deleted_at: {
       type: DataTypes.DATE,
-      allowNull: true,
+      allowNull: true
     }
   },
   {
     sequelize,
-    modelName: 'User',
     tableName: 'users',
     timestamps: true,
+    paranoid: true,
     createdAt: 'created_at',
     updatedAt: false,
-    paranoid: true,
-    deletedAt: 'deleted_at',
-    indexes: [
-      {
-        unique: true,
-        fields: ['email'],
-        name: 'users_email_active_key',
-        where: {
-          deleted_at: null
-        }
-      }
-    ]
+    deletedAt: 'deleted_at'
   }
 );
 

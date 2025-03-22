@@ -8,13 +8,8 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   if (error instanceof UniqueConstraintError) {
-    return res.status(400).json({
-      message: 'This email is already registered'
-    });
+    return res.status(400).json({ message: 'This email is already registered' });
   }
 
-  console.error('Unhandled error:', error);
-  res.status(500).json({
-    message: 'Internal server error'
-  });
+  res.status(500).json({ message: 'Internal server error' });
 };
