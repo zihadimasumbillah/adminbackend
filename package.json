@@ -6,12 +6,12 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
-    "build": "tsc",
+    "build": "npm install && tsc",
     "test": "jest",
     "migrate": "sequelize-cli db:migrate",
     "migrate:undo": "sequelize-cli db:migrate:undo",
     "migrate:undo:all": "sequelize-cli db:migrate:undo:all",
-    "vercel-build": "npm install && tsc",
+    "vercel-build": "npm install && tsc && cp package.json dist/",
     "vercel-install": "npm install --production=false",
     "postinstall": "npm run build"
   },
