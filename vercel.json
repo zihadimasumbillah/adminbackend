@@ -8,22 +8,7 @@
   ],
   "routes": [
     {
-      "src": "/health",
-      "dest": "dist/server.js",
-      "methods": ["GET"]
-    },
-    {
-      "src": "/api/auth/(.*)",
-      "dest": "dist/server.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization"
-      }
-    },
-    {
-      "src": "/api/(.*)",
+      "src": "/(.*)",
       "dest": "dist/server.js",
       "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       "headers": {
