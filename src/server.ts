@@ -1,9 +1,3 @@
-console.log('Environment Variables:');
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('DB_HOST:', process.env.DB_HOST ? 'Set' : 'Not set');
-console.log('DB_NAME:', process.env.DB_NAME ? 'Set' : 'Not set');
-console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Set' : 'Not set');
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -32,30 +26,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Headers:', JSON.stringify(req.headers, null, 2));
-  console.log('Body:', JSON.stringify(req.body, null, 2));
-  next();
-});
-
+// Add health check endpoint
 app.get('/health', async (req, res) => {
   try {
     await sequelize.authenticate();
-    console.log('Database connection successful');
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      env: process.env.NODE_ENV,
       database: {
         connected: true,
         host: process.env.DB_HOST,
         name: process.env.DB_NAME
       },
-      server: {
-        port: process.env.PORT,
-        nodeEnv: process.env.NODE_ENV
-      }
+      env: process.env.NODE_ENV
     });
   } catch (error) {
     console.error('Database connection error:', error);
