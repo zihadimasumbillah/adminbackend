@@ -11,7 +11,7 @@
     "migrate": "sequelize-cli db:migrate",
     "migrate:undo": "sequelize-cli db:migrate:undo",
     "migrate:undo:all": "sequelize-cli db:migrate:undo:all",
-    "vercel-build": "tsc && npm run migrate"
+    "vercel-build": "npm install && tsc && npm run migrate"
   },
   "keywords": [],
   "author": "",
