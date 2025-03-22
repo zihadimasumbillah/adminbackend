@@ -1,3 +1,9 @@
+console.log('Environment Variables:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DB_HOST:', process.env.DB_HOST ? 'Set' : 'Not set');
+console.log('DB_NAME:', process.env.DB_NAME ? 'Set' : 'Not set');
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Set' : 'Not set');
+
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -26,9 +32,17 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  console.log('Body:', JSON.stringify(req.body, null, 2));
+  next();
+});
+
 app.get('/health', async (req, res) => {
   try {
     await sequelize.authenticate();
+    console.log('Database connection successful');
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -36,13 +50,15 @@ app.get('/health', async (req, res) => {
       database: {
         connected: true,
         host: process.env.DB_HOST,
-        database: process.env.DB_NAME
+        name: process.env.DB_NAME
       },
-      jwt: {
-        secret: process.env.JWT_SECRET ? 'configured' : 'missing'
+      server: {
+        port: process.env.PORT,
+        nodeEnv: process.env.NODE_ENV
       }
     });
   } catch (error) {
+    console.error('Database connection error:', error);
     res.status(500).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
