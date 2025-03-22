@@ -13,23 +13,42 @@ console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Set' : 'Not set');
 const app = express();
 
 app.use(cors({
-  origin: [
-    'https://your-frontend-vercel-url.vercel.app',
-    'http://localhost:3000',
-    'https://adminbackend-psi.vercel.app'
-  ],
+  origin: '*', 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    env: process.env.NODE_ENV
-  });
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  next();
+});
+
+app.get('/health', async (req, res) => {
+  try {
+    await sequelize.authenticate();
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV,
+      database: {
+        connected: true,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME
+      },
+      jwt: {
+        secret: process.env.JWT_SECRET ? 'configured' : 'missing'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
 app.use('/api/auth', authRoutes);
