@@ -5,8 +5,7 @@
       "src": "dist/server.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": [".env"],
-        "installCommand": "npm install"
+        "includeFiles": [".env"]
       }
     }
   ],

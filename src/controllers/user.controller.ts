@@ -5,6 +5,9 @@ import sequelize from '../config/database';
 
 interface AuthRequest extends Request {
   user?: any;
+  body: {
+    userIds: string[];
+  };
 }
 
 export const getAllUsers = async (req: Request, res: Response) => {
