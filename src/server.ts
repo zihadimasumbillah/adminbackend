@@ -14,8 +14,9 @@ const app = express();
 
 app.use(cors({
   origin: [
-    'https://your-frontend-domain.vercel.app',
-    'http://localhost:3000'
+    'https://your-frontend-vercel-url.vercel.app',
+    'http://localhost:3000',
+    'https://adminbackend-23uty8y8r-masum-billah-s-projects.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
