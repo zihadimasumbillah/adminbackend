@@ -47,26 +47,28 @@ module.exports = {
       }
     });
 
+    
     await queryInterface.addIndex('users', ['email'], {
       unique: true,
       where: {
         deleted_at: null
       },
-      name: 'users_email_unique'
+      name: 'users_email_active_key'
     });
 
+ 
     await queryInterface.addIndex('users', ['name'], {
       unique: true,
       where: {
         deleted_at: null
       },
-      name: 'users_name_unique'
+      name: 'users_name_active_key'
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeIndex('users', 'users_name_unique');
-    await queryInterface.removeIndex('users', 'users_email_unique');
+    await queryInterface.removeIndex('users', 'users_name_active_key');
+    await queryInterface.removeIndex('users', 'users_email_active_key');
     await queryInterface.dropTable('users');
   }
 };

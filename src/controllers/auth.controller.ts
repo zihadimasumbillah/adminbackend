@@ -24,7 +24,8 @@ export const register = async (req: Request, res: Response) => {
       email,
       password: hashedPassword,
       status: 'active',
-      last_login_time: new Date()
+      last_login_time: new Date(),
+      created_at: new Date()
     });
 
     res.status(201).json({
@@ -33,7 +34,12 @@ export const register = async (req: Request, res: Response) => {
     });
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
-      return res.status(400).json({ message: 'Email already registered' });
+      const field = error.errors[0].path;
+      return res.status(400).json({ 
+        message: field === 'email' 
+          ? 'Email already registered' 
+          : 'Username already taken'
+      });
     }
     res.status(500).json({ message: 'Registration failed' });
   }
