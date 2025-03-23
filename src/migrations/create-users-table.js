@@ -3,6 +3,11 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+    try {
+      await queryInterface.removeIndex('users', 'users_email_unique');
+      await queryInterface.removeIndex('users', 'users_name_unique');
+    } catch (error) {
+    }
     await queryInterface.createTable('users', {
       id: {
         type: Sequelize.UUID,
@@ -47,12 +52,21 @@ module.exports = {
       where: {
         deleted_at: null
       },
-      name: 'users_email_active_key'
+      name: 'users_email_unique'
+    });
+
+    await queryInterface.addIndex('users', ['name'], {
+      unique: true,
+      where: {
+        deleted_at: null
+      },
+      name: 'users_name_unique'
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeIndex('users', 'users_email_active_key');
+    await queryInterface.removeIndex('users', 'users_name_unique');
+    await queryInterface.removeIndex('users', 'users_email_unique');
     await queryInterface.dropTable('users');
   }
 };

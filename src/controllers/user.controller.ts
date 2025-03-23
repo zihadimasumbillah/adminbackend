@@ -45,8 +45,24 @@ const updateUserStatus = async (userIds: string[], status: 'active' | 'blocked',
   }
 };
 
-export const blockUsers = async (req: AuthRequest, res: Response) => 
-  updateUserStatus(req.body.userIds, 'blocked', res);
+const checkUserStatus = async (userId: string) => {
+  const user = await User.findOne({
+    where: { id: userId },
+    attributes: ['status', 'deleted_at']
+  });
+  return !user || user.deleted_at || user.status === 'blocked';
+};
+
+export const blockUsers = async (req: AuthRequest, res: Response) => {
+  try {
+    if (await checkUserStatus(req.user!.id)) {
+      return res.status(403).json({ message: 'Account unavailable', redirect: '/login' });
+    }
+    await updateUserStatus(req.body.userIds, 'blocked', res);
+  } catch (error) {
+    res.status(500).json({ message: 'Operation failed' });
+  }
+};
 
 export const unblockUsers = async (req: AuthRequest, res: Response) => 
   updateUserStatus(req.body.userIds, 'active', res);

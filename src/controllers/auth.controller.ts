@@ -17,34 +17,14 @@ const formatUserResponse = (user: User) => ({
 export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
-    const existingUser = await User.findOne({ where: { email }, paranoid: false });
-
-    if (existingUser?.deleted_at) {
-      await existingUser.restore();
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await existingUser.update({
-        name, password: hashedPassword,
-        status: 'active',
-        last_login_time: new Date()
-      });
-      
-      return res.status(201).json({
-        user: formatUserResponse(existingUser),
-        token: createToken(existingUser.id)
-      });
-    }
-
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email already registered' });
-    }
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
       email,
-      password: await bcrypt.hash(password, 10),
-      status: 'active' as const,
-      last_login_time: new Date(),
-      created_at: new Date()
+      password: hashedPassword,
+      status: 'active',
+      last_login_time: new Date()
     });
 
     res.status(201).json({
@@ -55,7 +35,7 @@ export const register = async (req: Request, res: Response) => {
     if (error instanceof UniqueConstraintError) {
       return res.status(400).json({ message: 'Email already registered' });
     }
-    res.status(500).json({ message: 'Error creating user' });
+    res.status(500).json({ message: 'Registration failed' });
   }
 };
 

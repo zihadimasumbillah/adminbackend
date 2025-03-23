@@ -15,13 +15,16 @@ export const auth = async (req: AuthRequest, res: Response, next: NextFunction) 
       attributes: ['id', 'status', 'deleted_at'] 
     });
 
-    if (!user?.id || user.deleted_at || user.status === 'blocked') {
-      return res.status(403).json({ message: 'Account unavailable', redirect: '/login' });
+    if (!user || user.deleted_at || user.status === 'blocked') {
+      return res.status(403).json({ 
+        message: user?.status === 'blocked' ? 'Account blocked' : 'Account unavailable',
+        redirect: '/login'
+      });
     }
 
     req.user = user;
     next();
-  } catch {
+  } catch (error) {
     res.status(401).json({ message: 'Authentication failed', redirect: '/login' });
   }
 };
