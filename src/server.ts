@@ -23,9 +23,7 @@ const allowedOrigins = [
   'http://localhost:3000', 
   'http://127.0.0.1:3000', 
   'http://localhost:3001',
-  'https://useradminstration-tjm1-fi9jaxiyl-masum-billah-s-projects.vercel.app', 
-  'https://useradminstration-tjm1.vercel.app',
-  'https://useradminstration-itransition.vercel.app'
+  'https://useradminstration.vercel.app'
 ];
 
 if (process.env.VERCEL_URL) {
