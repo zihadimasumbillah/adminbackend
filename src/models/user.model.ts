@@ -1,4 +1,5 @@
 import { Model, DataTypes, fn, Op } from 'sequelize';
+import sequelize from '../config/database';
 
 interface UserAttributes {
   id?: string; 
@@ -50,7 +51,7 @@ User.init(
             where: {
               name: value,
               deleted_at: null,
-              id: { [Op.not]: this.id } 
+              id: { [Op.not]: this.id as string } 
             }
           });
           if (existingUser) {
@@ -70,7 +71,7 @@ User.init(
             where: {
               email: value.toLowerCase(),
               deleted_at: null,
-              id: { [Op.not]: this.id }
+              id: { [Op.not]: this.id as string }
             }
           });
           if (existingUser) {
@@ -131,7 +132,7 @@ User.init(
         name: 'users_name_sort_idx',
         fields: [
           [sequelize.fn('LOWER', sequelize.col('name')), 'ASC'],
-          ['id', 'ASC']
+          [{ name: 'id', order: 'ASC' }]
         ]
       }
     ]

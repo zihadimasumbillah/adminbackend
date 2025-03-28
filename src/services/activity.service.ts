@@ -1,4 +1,4 @@
-import { UserActivityHistory, UserActivityHistoryInstance } from '../models/user-activity-history.model';
+import { UserActivityHistory } from '../models/user-activity-history.model';
 import { QueryTypes } from 'sequelize';
 import sequelize from '../config/database';
 

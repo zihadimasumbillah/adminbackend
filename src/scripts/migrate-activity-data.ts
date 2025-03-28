@@ -11,7 +11,7 @@ const migrateActivityData = async () => {
       attributes: ['id', 'email', 'last_login_time', 'last_activity_time', 'created_at'],
       where: {
         last_activity_time: {
-          [Op.not]: null 
+          [Op.not]: null as unknown as Date 
         }
       }
     });

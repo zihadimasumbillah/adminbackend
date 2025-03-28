@@ -207,7 +207,7 @@ export const unblockUsers = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: 'No users selected' });
     }
     
-    const result = await updateUserStatus(req.body.userIds, 'active', res);
+    const result = await updateUserStatus(req.body.userIds, 'active');
     res.json(result);
   } catch (error) {
     console.error('Unblock operation failed:', error);

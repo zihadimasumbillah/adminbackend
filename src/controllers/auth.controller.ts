@@ -42,7 +42,6 @@ export const register = async (req: Request, res: Response) => {
     const sanitizedName = sanitizeInput(name);
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check for existing active user with same name
     const existingActiveName = await User.findOne({
       where: {
         name: sanitizedName,
@@ -58,7 +57,6 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
-    // Check for previously deleted user
     const deletedUser = await User.findOne({
       where: {
         email: normalizedEmail,
@@ -69,7 +67,6 @@ export const register = async (req: Request, res: Response) => {
 
     if (deletedUser) {
       try {
-        // First check if the new name is available
         const nameConflict = await User.findOne({
           where: {
             name: sanitizedName,
@@ -122,7 +119,7 @@ export const register = async (req: Request, res: Response) => {
           token
         });
       } catch (error) {
-        if (error.name === 'SequelizeUniqueConstraintError') {
+        if (typeof error === 'object' && 'name' in error && error.name === 'SequelizeUniqueConstraintError') {
           return res.status(400).json({
             message: 'This name is already in use',
             field: 'name',
@@ -133,9 +130,11 @@ export const register = async (req: Request, res: Response) => {
       }
     }
 
-    // Create new user
     const hashedPassword = await bcrypt.hash(password, 12);
-    const user = await User.create({
+    const user = await User.create({ 
+      login_attempts: 0,
+      created_at: new Date(),
+      last_login_time: new Date(),
       name: sanitizedName,
       email: normalizedEmail,
       password: hashedPassword,
@@ -231,7 +230,7 @@ export const updateActivity = async (req: AuthRequest, res: Response) => {
     const userId = req.user.id;
     const email = req.user.email;
     const now = new Date();
-    const clientTime = req.body.clientTime ? new Date(req.body.clientTime) : null;
+    const clientTime = req.body?.clientTime ? new Date(req.body.clientTime) : null;
     
     try {
       const user = await User.findByPk(userId);
