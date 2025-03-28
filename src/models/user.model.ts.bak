@@ -131,9 +131,11 @@ User.init(
       {
         name: 'users_name_sort_idx',
         fields: [
-          { name: 'name', order: 'ASC' },  // Fixed this line
+          { name: sequelize.fn('LOWER', sequelize.col('name')), order: 'ASC' },
           { name: 'id', order: 'ASC' }
         ]
+      }
+    ]
       }
     ]
   }

@@ -3,48 +3,130 @@
 # Colors for better readability
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}Starting to fix TypeScript errors in backend code...${NC}"
+echo -e "${YELLOW}Fixing User.create() call in auth.controller.ts...${NC}"
 
-# Fix auth.controller.ts errors
-echo -e "${YELLOW}Fixing auth.controller.ts...${NC}"
-sed -i '' 's/if (error.name === '\''SequelizeUniqueConstraintError'\''/if (error && typeof error === '\''object'\'' \&\& '\''name'\'' in error \&\& error.name === '\''SequelizeUniqueConstraintError'\''/g' src/controllers/auth.controller.ts
+# Create a backup of the file
+cp src/controllers/auth.controller.ts src/controllers/auth.controller.ts.bak
 
-# Fix User model create call
-sed -i '' 's/const user = await User.create({/const user = await User.create({ \
-      login_attempts: 0,\
+# Use awk to find and replace the User.create() call with added properties
+awk 'BEGIN{found=0}
+/const user = await User.create\({/{
+  print $0;
+  print "      name: sanitizedName,";
+  print "      email: normalizedEmail,";
+  print "      password: hashedPassword,";
+  print "      status: '\''active'\'',";
+  print "      last_activity_time: new Date(),";
+  print "      last_login_time: new Date(),";
+  print "      created_at: new Date(),";
+  print "      login_attempts: 0";
+  found=1;
+  next;
+}
+/name: sanitizedName,|email: normalizedEmail,|password: hashedPassword,|status: '\''active'\'',|last_activity_time: new Date()/{
+  if(found) next;
+}
+{print}' src/controllers/auth.controller.ts.bak > src/controllers/auth.controller.ts.tmp
+
+# Replace the original file with the fixed version
+mv src/controllers/auth.controller.ts.tmp src/controllers/auth.controller.ts
+
+echo -e "${GREEN}Fixed User.create() call in auth.controller.ts${NC}"
+
+# Test the build
+echo -e "${YELLOW}Testing TypeScript compilation...${NC}"
+if npx tsc --noEmit; then
+  echo -e "${GREEN}Success! All TypeScript errors have been fixed.${NC}"
+else
+  echo -e "${YELLOW}There are still errors. Let's try a more direct approach...${NC}"
+  
+  # More direct approach with sed pattern replacement
+  sed -i '' 's/const user = await User.create({ \
+      name: sanitizedName,\
+      email: normalizedEmail,\
+      password: hashedPassword,\
+      status: '\''active'\'',\
+      last_activity_time: new Date()\
+    });/const user = await User.create({ \
+      name: sanitizedName,\
+      email: normalizedEmail,\
+      password: hashedPassword,\
+      status: '\''active'\'',\
+      last_activity_time: new Date(),\
+      last_login_time: new Date(),\
       created_at: new Date(),\
-      last_login_time: new Date(),/g' src/controllers/auth.controller.ts
+      login_attempts: 0\
+    });/' src/controllers/auth.controller.ts
+    
+  echo -e "${GREEN}Applied direct replacement for User.create() call${NC}"
+  
+  # Test again
+  echo -e "${YELLOW}Testing TypeScript compilation again...${NC}"
+  if npx tsc --noEmit; then
+    echo -e "${GREEN}Success! All TypeScript errors have been fixed.${NC}"
+  else
+    echo -e "${YELLOW}Let's try the most direct approach - manual replacement...${NC}"
+    
+    # Create a temporary file with the exact pattern we want to replace
+    cat > fix_create.js << 'EOF'
+const fs = require('fs');
+const path = require('path');
 
-# Fix clientTime error
-sed -i '' 's/const clientTime = req.body.clientTime/const clientTime = req.body?.clientTime/g' src/controllers/auth.controller.ts
+const filePath = path.join(__dirname, 'src/controllers/auth.controller.ts');
+let content = fs.readFileSync(filePath, 'utf8');
 
-# Fix user.controller.ts error
-echo -e "${YELLOW}Fixing user.controller.ts...${NC}"
-sed -i '' 's/const result = await updateUserStatus(req.body.userIds, '\''active'\'', res);/const result = await updateUserStatus(req.body.userIds, '\''active'\'');/g' src/controllers/user.controller.ts
+// Define the pattern to locate
+const pattern = /const user = await User\.create\(\s*{\s*name:\s*sanitizedName,\s*email:\s*normalizedEmail,\s*password:\s*hashedPassword,\s*status:\s*'active',\s*last_activity_time:\s*new Date\(\)\s*}\);/m;
 
-# Fix user.model.ts errors
-echo -e "${YELLOW}Fixing user.model.ts...${NC}"
+// Define the replacement with all required properties
+const replacement = `const user = await User.create({ 
+      name: sanitizedName,
+      email: normalizedEmail,
+      password: hashedPassword,
+      status: 'active',
+      last_activity_time: new Date(),
+      last_login_time: new Date(),
+      created_at: new Date(),
+      login_attempts: 0
+    });`;
 
-# First add the import for sequelize at top 
-sed -i '' 's/import { Model, DataTypes, fn, Op } from '\''sequelize'\'';/import { Model, DataTypes, fn, Op } from '\''sequelize'\'';\
-import sequelize from '\''..\/config\/database'\'';/g' src/models/user.model.ts
+// Replace the pattern with our replacement
+const updatedContent = content.replace(pattern, replacement);
 
-# Fix id typings in isUnique methods
-sed -i '' 's/id: { \[Op.not\]: this.id }/id: { \[Op.not\]: this.id as string }/g' src/models/user.model.ts
+// Write the updated content back to the file
+fs.writeFileSync(filePath, updatedContent);
 
-# Fix fields array in indexes
-sed -i '' 's/\[\[sequelize.fn('\''LOWER'\'', sequelize.col('\''name'\'')), '\''ASC'\''\],/\[{ name: sequelize.fn('\''LOWER'\'', sequelize.col('\''name'\'')), order: '\''ASC'\'' },/g' src/models/user.model.ts
-sed -i '' 's/\['\''id'\'', '\''ASC'\''\]/\[{ name: '\''id'\'', order: '\''ASC'\'' }\]/g' src/models/user.model.ts
+console.log('Replaced User.create() call with all required properties');
+EOF
 
-# Fix scripts/migrate-activity-data.ts
-echo -e "${YELLOW}Fixing migrate-activity-data.ts...${NC}"
-sed -i '' 's/\[Op.not\]: null/\[Op.not\]: null as unknown as Date/g' src/scripts/migrate-activity-data.ts
-
-# Fix services/activity.service.ts
-echo -e "${YELLOW}Fixing activity.service.ts...${NC}"
-sed -i '' 's/import { UserActivityHistory, UserActivityHistoryInstance } from '\''\.\.\/models\/user-activity-history\.model'\'';/import { UserActivityHistory } from '\''\.\.\/models\/user-activity-history\.model'\'';/g' src/services/activity.service.ts
-
-echo -e "${GREEN}All TypeScript errors fixed successfully!${NC}"
+    node fix_create.js
+    rm fix_create.js
+    
+    echo -e "${GREEN}Applied manual replacement of User.create() call${NC}"
+    
+    echo -e "${YELLOW}Testing TypeScript compilation one final time...${NC}"
+    if npx tsc --noEmit; then
+      echo -e "${GREEN}Success! All TypeScript errors have been fixed.${NC}"
+    else
+      echo -e "${YELLOW}Manual editing required. Here's exactly what you need to do:${NC}"
+      echo ""
+      echo "1. Open src/controllers/auth.controller.ts"
+      echo "2. Find the User.create() call around line 133"
+      echo "3. Replace it with the following code:"
+      echo ""
+      echo "    const user = await User.create({ "
+      echo "      name: sanitizedName,"
+      echo "      email: normalizedEmail,"
+      echo "      password: hashedPassword,"
+      echo "      status: 'active',"
+      echo "      last_activity_time: new Date(),"
+      echo "      last_login_time: new Date(),"
+      echo "      created_at: new Date(),"
+      echo "      login_attempts: 0"
+      echo "    });"
+      echo ""
+    fi
+  fi
+fi

@@ -135,10 +135,7 @@ export const register = async (req: Request, res: Response) => {
       email: normalizedEmail,
       password: hashedPassword,
       status: 'active',
-      last_activity_time: new Date(),
-      last_login_time: new Date(),
-      created_at: new Date(),
-      login_attempts: 0
+      last_activity_time: new Date()
     });
 
     const token = createToken(user.id);
