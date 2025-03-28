@@ -1,0 +1,6 @@
+Unused dependencies
+* @types/node
+* pg-hstore
+Unused devDependencies
+* sequelize-cli
+* ts-node
